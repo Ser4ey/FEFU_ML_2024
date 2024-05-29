@@ -5,6 +5,7 @@ from io import BytesIO
 from model import MLModel
 from extract_letters import split_letters
 
+
 # Получение значения переменной окружения
 model = MLModel(os.getenv('PATH_TO_MODEL'))
 bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
@@ -39,59 +40,49 @@ def handle_photo(message):
     img_file = BytesIO(downloaded_file)
     img_file.seek(0)
 
+    # сохраняем фото
+    path_to_file = f'download/{file_info.file_id}.jpg'
+    with open(path_to_file, 'wb') as file:
+        file.write(downloaded_file)
+
     # подпись к фото
     caption = message.caption
     if caption == "2":
-        path_to_file = f'download/{file_info.file_id}.jpg'
-        with open(path_to_file, 'wb') as new_file:
-            new_file.write(downloaded_file)
+        answer_to_user = get_many_letter_answer(path_to_file)
+        bot.send_message(message.chat.id, answer_to_user)
+    else:
+        answer_to_user = get_one_letter_answer(path_to_file)
+        bot.send_message(message.chat.id, answer_to_user)
 
-        answer_text = get_text_by_images(path_to_file)
-        bot.send_message(message.chat.id, answer_text)
-        return
+        buf = model.get_img(img_file)
+        bot.send_photo(message.chat.id, buf)
 
-    # # Сохраняем фото в файл
-    # path_to_file = f'download/{file_info.file_id}.jpg'
-    # with open(path_to_file, 'wb') as new_file:
-    #     new_file.write(downloaded_file)
 
-    # res = model.predict_img(path_to_file)
-    res = model.predict_img(img_file)
+def get_many_letter_answer(path_to_img) -> str:
+    images = split_letters(path_to_img)
+
+    answer_to_user = ""
+    for i in range(len(images)):
+        res = model.predict_img(images[i])
+        letter = list(res.keys())[0]
+        answer_to_user += letter
+
+    print(answer_to_user)
+    return answer_to_user
+
+
+def get_one_letter_answer(path_to_img) -> str:
+    res = model.predict_img(path_to_img)
     print(res)
 
     count = 0
-    ans = ""
+    answer_to_user = ""
     for k, v in res.items():
-        ans += f"{k}: {v:.3f}%\n"
+        answer_to_user += f"{k}: {v:.3f}%\n"
         count += 1
         if count >= 5:
             break
-    bot.send_message(message.chat.id, ans)
-
-    buf = model.get_img(img_file)
-    bot.send_photo(message.chat.id, buf)
-
-
-@bot.message_handler(func=lambda message: True)
-def echo_all(message):
-    bot.reply_to(message, message.text)
-
-
-def get_text_by_images(path_to_img):
-    images = split_letters(path_to_img)
-    text = ""
-    for i in range(len(images)):
-        print(i)
-        res = model.predict_img(images[i])
-        letter = list(res.keys())[0]
-        text += letter
-        print(res)
-        print("\n")
-
-    print(text)
-    return text
+    return answer_to_user
 
 
 bot.infinity_polling()
-
-

@@ -73,5 +73,5 @@ class MLModel:
 if __name__ == "__main__":
     m = MLModel("../model/v1.h5")
 
-    r = m.predict_img("4.jpg")
+    r = m.predict_img("test_images/4.jpg")
     print(r)
