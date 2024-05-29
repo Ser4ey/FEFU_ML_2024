@@ -1,10 +1,10 @@
 import io
 
-import tensorflow as tf
 import keras
+import numpy as np
+import tensorflow as tf
 from keras.models import load_model
 from tensorflow.keras import layers
-import numpy as np
 
 
 class MLModel:

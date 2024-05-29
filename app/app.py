@@ -6,19 +6,23 @@ from model import MLModel
 from extract_letters import split_letters
 
 # Получение значения переменной окружения
-BOT_TOKEN = os.getenv('BOT_TOKEN')
-
-# Вывод значения переменной окружения
-print(BOT_TOKEN)
-
-model = MLModel("v100.h5")
-
-bot = telebot.TeleBot(BOT_TOKEN)
+model = MLModel(os.getenv('PATH_TO_MODEL'))
+bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
 
 
-@bot.message_handler(commands=['start', 'help'])
-def send_welcome(message):
-    bot.reply_to(message, "Howdy, how are you doing?")
+@bot.message_handler(commands=['start'])
+def handle_start(message):
+    start_text = "Привет! Это бот для распознования рукописных русских букв!" \
+           "\n\nGithub репозиторий проекта: https://github.com/Ser4ey/FEFU_ML_2024.git"
+
+    bot.send_message(message.chat.id, start_text)
+
+
+@bot.message_handler(commands=['help'])
+def handle_help(message):
+    help_text = "Отправте боту изображение с рксской буквой. Если на изображении несколько букв, добавьте подпись '2'"
+
+    bot.send_message(message.chat.id, help_text)
 
 
 @bot.message_handler(content_types=['photo'])
