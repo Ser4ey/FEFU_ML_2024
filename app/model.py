@@ -3,11 +3,8 @@ import io
 import tensorflow as tf
 import keras
 from keras.models import load_model
-from keras.preprocessing.image import img_to_array
 from tensorflow.keras import layers
-import matplotlib.pyplot as plt
 import numpy as np
-
 
 
 class MLModel:
@@ -17,23 +14,7 @@ class MLModel:
     def __init__(self, path_to_model: str):
         self.model = load_model(path_to_model)
 
-    def show_img(self, path_to_img: str, do_rescale=True):
-        image = keras.utils.load_img(
-            path_to_img,
-            target_size=(28, 28),
-            color_mode="grayscale"
-        )
-
-        # нормадизуем изображение
-        if do_rescale:
-            rescale = layers.Rescaling(1. / 255)
-            image = rescale(image)
-
-        image_array = img_to_array(image)
-        plt.imshow(image_array.astype('uint8'))
-        plt.show()
-
-    def get_img(self, path_to_img: str, do_rescale=True):
+    def get_img(self, path_to_img: str, do_rescale=True) -> io.BytesIO:
         image = keras.utils.load_img(
             path_to_img,
             target_size=(28, 28),
@@ -44,7 +25,6 @@ class MLModel:
         # Нормализуем изображение
         if do_rescale:
             image = image / 255.0
-        # print(image)
 
         # Конвертируем тензор в PIL Image
         image = tf.keras.preprocessing.image.array_to_img(image)
@@ -55,19 +35,8 @@ class MLModel:
         img_bytes.seek(0)
 
         return img_bytes
-        # image_array = img_to_array(image)
-        #
-        # # Преобразуем массив NumPy в изображение и сохраняем его в буфер
-        # image = Image.fromarray(np.uint8(image_array * 255))
-        # buf = BytesIO()
-        # image.save(buf, format='JPEG')
-        # buf.seek(0)
-        #
-        # return buf
 
-
-    def predict_img(self, path_to_img: str):
-        # self.show_img(path_to_img, False)
+    def predict_img(self, path_to_img: str) -> dict:
         image = keras.utils.load_img(
             path_to_img,
             target_size=(28, 28),
@@ -83,7 +52,6 @@ class MLModel:
         input_arr = np.array([input_arr])  # Convert single image to a batch.
 
         res = self.model.predict(input_arr)
-        # print(res)
         print(np.argmax(res))
         print(MLModel.class_names[np.argmax(res)])
 
@@ -103,7 +71,7 @@ class MLModel:
 
 
 if __name__ == "__main__":
-    m = MLModel("v8.h5")
+    m = MLModel("../model/v1.h5")
 
     r = m.predict_img("4.jpg")
     print(r)
