@@ -13,7 +13,7 @@ bot = telebot.TeleBot(os.getenv('BOT_TOKEN'))
 
 @bot.message_handler(commands=['start'])
 def handle_start(message):
-    start_text = "Привет! Это бот для распознования рукописных русских букв!" \
+    start_text = "Привет! Это бот для распознавания рукописных русских букв!" \
            "\n\nGithub репозиторий проекта: https://github.com/Ser4ey/FEFU_ML_2024.git"
 
     bot.send_message(message.chat.id, start_text)
@@ -21,7 +21,7 @@ def handle_start(message):
 
 @bot.message_handler(commands=['help'])
 def handle_help(message):
-    help_text = "Отправте боту изображение с рксской буквой. Если на изображении несколько букв, добавьте подпись '2'"
+    help_text = "Отправьте боту изображение с русской буквой. Если на изображении несколько букв, добавьте подпись '2'"
 
     bot.send_message(message.chat.id, help_text)
 
